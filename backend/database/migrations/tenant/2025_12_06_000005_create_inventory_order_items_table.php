@@ -11,7 +11,7 @@ return new class extends Migration {
         Schema::create('inventory.order_items', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
             $table->foreignUuid('order_id')->references('id')->on('inventory.orders')->onDelete('cascade');
-            $table->foreignUuid('product_id')->references('id')->on('inventory.products')->onDelete('cascade');
+            $table->foreignUuid('product_id')->references('id')->on('inventory.products')->onDelete('restrict');
             $table->integer('quantity');
             $table->decimal('price_at_purchase', 12, 2);
             $table->timestamps();

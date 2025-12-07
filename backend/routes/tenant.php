@@ -40,6 +40,8 @@ Route::middleware([
     Route::get('products', [ProductController::class, 'index']);
     Route::post('products', [ProductController::class, 'store']);
     Route::get('products/{product}', [ProductController::class, 'show']);
+    Route::put('products/{product}', [ProductController::class, 'update']);
+    Route::delete('products/{product}', [ProductController::class, 'destroy']);
     
     // Customers
     Route::get('customers', [CustomerController::class, 'index']);
@@ -52,6 +54,9 @@ Route::middleware([
     Route::get('orders', [OrderController::class, 'index']);
     Route::post('orders', [OrderController::class, 'store']);
     Route::get('orders/{order}', [OrderController::class, 'show']);
+    Route::post('orders/{order}/confirm', [OrderController::class, 'confirm']);
+    Route::post('orders/{order}/cancel', [OrderController::class, 'cancel']);
+    Route::delete('orders/{order}', [OrderController::class, 'destroy']);
     
     // Stocks
     Route::get('stocks', [StockController::class, 'index']);
