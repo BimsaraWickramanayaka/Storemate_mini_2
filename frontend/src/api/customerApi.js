@@ -14,4 +14,10 @@ export async function fetchCustomers(params = {}) {
   return extractList(res);
 }
 
+// Fetch single customer and return data directly
+export async function fetchCustomer(id) {
+  const res = await getCustomer(id);
+  return res.data || res;
+}
+
 export { extractList as extractCustomerList };

@@ -1,18 +1,19 @@
 // src/pages/products/ProductList.jsx
 import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
-import { fetchProducts } from "../../api/productApi";
+import { fetchProducts, deleteProduct } from "../../api/productApi";
 import Loading from "../../components/Loading";
 import ErrorBox from "../../components/ErrorBox";
 import { TenantContext } from "../../context/TenantContext";
 
 export default function ProductList(){
-  const { tenant } = useContext(TenantContext);
+  const { tenant, tenantChangeCount } = useContext(TenantContext);
   const [products, setProducts] = useState([]);
   const [meta, setMeta] = useState(null);
   const [page, setPage] = useState(1);
   const [loading,setLoading] = useState(false);
   const [error,setError] = useState(null);
+  const [actionInProgress, setActionInProgress] = useState(null);
 
   const load = async (pg = 1) => {
     setLoading(true);
@@ -31,8 +32,31 @@ export default function ProductList(){
 
   useEffect(()=>{
     load(1);
-    // re-run when tenant changes
-  }, [tenant.id]);
+    // Re-run when tenant changes
+  }, [tenant.id, tenantChangeCount]);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product? This cannot be undone.")) {
+      return;
+    }
+
+    setActionInProgress(id);
+    try {
+      await deleteProduct(id);
+      setProducts(products.filter(p => p.id !== id));
+    } catch (err) {
+      // Handle 409 Conflict (product has order items)
+      if (err.response?.status === 409) {
+        setError({
+          message: "Cannot delete this product because it has associated orders. Products can only be deleted before they are ordered."
+        });
+      } else {
+        setError(err);
+      }
+    } finally {
+      setActionInProgress(null);
+    }
+  };
 
   if (loading) return <Loading />;
   if (error) return <ErrorBox error={error} />;
@@ -56,19 +80,30 @@ export default function ProductList(){
             <th className="p-2 text-left">SKU</th>
             <th className="p-2 text-right">Price</th>
             <th className="p-2 text-right">Total Stock</th>
+            <th className="p-2 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {products.map(p => (
-            <tr key={p.id} className="border-t">
+            <tr key={p.id} className="border-t hover:bg-gray-50">
               <td className="p-2">{p.name}</td>
               <td className="p-2">{p.sku}</td>
               <td className="p-2 text-right">{typeof p.price === "number" ? p.price.toFixed(2) : p.price}</td>
               <td className="p-2 text-right">{getTotalStock(p)}</td>
+              <td className="p-2 space-x-2">
+                <Link to={`/products/${p.id}/edit`} className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Edit</Link>
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  disabled={actionInProgress === p.id}
+                  className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 disabled:opacity-50"
+                >
+                  {actionInProgress === p.id ? "Deleting..." : "Delete"}
+                </button>
+              </td>
             </tr>
           ))}
           {products.length === 0 && (
-            <tr><td colSpan="4" className="p-4 text-center">No products found</td></tr>
+            <tr><td colSpan="5" className="p-4 text-center">No products found</td></tr>
           )}
         </tbody>
       </table>

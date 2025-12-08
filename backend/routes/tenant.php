@@ -9,6 +9,7 @@ use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\CustomerController;
 use App\Http\Controllers\API\StockController;
+use App\Http\Middleware\EnableCorsMiddleware;
 use App\Models\Product;
 use App\Models\Customer;
 use App\Models\Order;
@@ -31,6 +32,7 @@ Route::model('order', Order::class);
 Route::model('stock', Stock::class);
 
 Route::middleware([
+    EnableCorsMiddleware::class, // CORS must be first
     'api',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
@@ -65,4 +67,3 @@ Route::middleware([
     Route::delete('stocks/{stock}', [StockController::class, 'destroy']);
     Route::get('products/{product}/stocks', [StockController::class, 'byProduct']);
 });
-
