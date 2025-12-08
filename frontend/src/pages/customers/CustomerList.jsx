@@ -11,6 +11,7 @@ export default function CustomerList() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [actionError, setActionError] = useState(null); // For delete-specific errors
   const [actionInProgress, setActionInProgress] = useState(null);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function CustomerList() {
     const customer = customers.find(c => c.id === id);
     
     if (customer?.orders?.length > 0) {
-      setError({
+      setActionError({
         message: `Cannot delete customer with ${customer.orders.length} order(s). Please delete or reassign the orders first.`
       });
       return;
@@ -44,11 +45,12 @@ export default function CustomerList() {
     }
 
     setActionInProgress(id);
+    setActionError(null); // Clear previous errors
     try {
       await deleteCustomer(id);
       setCustomers(customers.filter(c => c.id !== id));
     } catch (err) {
-      setError(err);
+      setActionError(err);
     } finally {
       setActionInProgress(null);
     }
@@ -66,6 +68,19 @@ export default function CustomerList() {
       </div>
 
       {error && <ErrorBox error={error} />}
+
+      {/* Action Error Alert (doesn't hide the list) */}
+      {actionError && (
+        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-600">{actionError.message || "An error occurred"}</p>
+          <button
+            onClick={() => setActionError(null)}
+            className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {customers.length === 0 ? (
         <div className="bg-white rounded shadow p-8 text-center text-gray-500">
@@ -94,8 +109,7 @@ export default function CustomerList() {
                     <Link to={`/customers/${customer.id}/edit`} className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Edit</Link>
                     <button
                       onClick={() => handleDelete(customer.id)}
-                      disabled={actionInProgress === customer.id || (customer.orders?.length > 0)}
-                      title={customer.orders?.length > 0 ? `Cannot delete - has ${customer.orders.length} order(s)` : ""}
+                      disabled={actionInProgress === customer.id}
                       className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {actionInProgress === customer.id ? "Deleting..." : "Delete"}

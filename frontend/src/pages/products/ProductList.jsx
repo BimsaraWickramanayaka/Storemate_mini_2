@@ -13,6 +13,7 @@ export default function ProductList(){
   const [page, setPage] = useState(1);
   const [loading,setLoading] = useState(false);
   const [error,setError] = useState(null);
+  const [actionError, setActionError] = useState(null); // For action-specific errors
   const [actionInProgress, setActionInProgress] = useState(null);
 
   const load = async (pg = 1) => {
@@ -41,17 +42,18 @@ export default function ProductList(){
     }
 
     setActionInProgress(id);
+    setActionError(null); // Clear previous errors
     try {
       await deleteProduct(id);
       setProducts(products.filter(p => p.id !== id));
     } catch (err) {
       // Handle 409 Conflict (product has order items)
       if (err.response?.status === 409) {
-        setError({
+        setActionError({
           message: "Cannot delete this product because it has associated orders. Products can only be deleted before they are ordered."
         });
       } else {
-        setError(err);
+        setActionError(err);
       }
     } finally {
       setActionInProgress(null);
@@ -72,6 +74,19 @@ export default function ProductList(){
         <h2 className="text-xl font-semibold">Products</h2>
         <Link to="/products/create" className="bg-blue-600 text-white px-3 py-1 rounded">Add Product</Link>
       </div>
+
+      {/* Action Error Alert (doesn't hide the list) */}
+      {actionError && (
+        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-600">{actionError.message || "An error occurred"}</p>
+          <button
+            onClick={() => setActionError(null)}
+            className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <table className="w-full bg-white rounded shadow">
         <thead className="bg-gray-100">

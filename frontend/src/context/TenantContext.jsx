@@ -35,26 +35,29 @@ export function TenantProvider({ children }) {
 
   /**
    * Load persisted tenant on component mount.
+   * Runs synchronously to set up axios baseURL before AuthContext needs it.
    */
   useEffect(() => {
+    // Load saved tenant or use default
     const savedTenant = localStorage.getItem("selectedTenant");
+    let tenantToLoad = defaultTenants[0]; // Default fallback
+
     if (savedTenant) {
       try {
         const t = JSON.parse(savedTenant);
         const tenantExists = defaultTenants.find((tn) => tn.id === t.id);
         if (tenantExists) {
-          setTenant(t);
-          setTenantBaseURL(t.domain);
+          tenantToLoad = t;
         }
       } catch (error) {
         console.error("Failed to load saved tenant:", error);
         // Fall back to default
-        setTenantBaseURL(defaultTenants[0].domain);
       }
-    } else {
-      // Initialize with default tenant
-      setTenantBaseURL(defaultTenants[0].domain);
     }
+
+    // Set tenant and initialize axios baseURL immediately (synchronously)
+    setTenant(tenantToLoad);
+    setTenantBaseURL(tenantToLoad.domain);
     setIsLoading(false);
   }, []);
 
