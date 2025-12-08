@@ -15,13 +15,12 @@ return new class extends Migration {
             $table->enum('status', ['pending', 'confirmed', 'shipped', 'cancelled'])->default('pending');
             $table->decimal('total_amount', 12, 2)->default(0);
             $table->timestampTz('ordered_at')->useCurrent();
-            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('customer_id')
                   ->references('id')
                   ->on('inventory.customers')
-                  ->nullOnDelete();
+                  ->onDelete('restrict');
         });
     }
 

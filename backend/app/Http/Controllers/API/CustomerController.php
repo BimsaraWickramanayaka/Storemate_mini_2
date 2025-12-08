@@ -34,6 +34,13 @@ class CustomerController extends Controller
 
     public function destroy(Customer $customer)
     {
+        // Check if customer has any orders
+        if ($customer->orders()->exists()) {
+            return response()->json([
+                'message' => 'Cannot delete customer with existing orders'
+            ], 409); // 409 Conflict
+        }
+
         $customer->delete();
         return response()->noContent();
     }
