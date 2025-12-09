@@ -1,32 +1,49 @@
 // src/components/Navbar.jsx
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 import { TenantContext } from "../context/TenantContext";
 
 export default function Navbar() {
-  const { tenant, switchTenant, tenants } = useContext(TenantContext);
+  const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useAuth();
+  const { tenant } = useContext(TenantContext);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
+  // Only show navbar if authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <nav className="bg-white p-4 flex items-center justify-between shadow">
       <div className="flex items-center space-x-4">
-        <Link to="/" className="font-bold">Storemate OMS</Link>
-        <Link to="/products">Products</Link>
-        <Link to="/customers">Customers</Link>
-        <Link to="/orders">Orders</Link>
-        <Link to="/stocks">Stocks</Link>
+        <Link to="/" className="font-bold text-lg">Storemate OMS</Link>
+        <span className="text-sm text-gray-500">|</span>
+        <span className="text-sm text-gray-600">{tenant?.name}</span>
+        
+        <Link to="/products" className="hover:text-indigo-600">Products</Link>
+        <Link to="/customers" className="hover:text-indigo-600">Customers</Link>
+        <Link to="/orders" className="hover:text-indigo-600">Orders</Link>
+        <Link to="/stocks" className="hover:text-indigo-600">Stocks</Link>
       </div>
 
       <div className="flex items-center space-x-4">
-        <select
-          value={tenant.id}
-          onChange={(e) => {
-            const selected = tenants.find(t => t.id === e.target.value);
-            if (selected) switchTenant(selected);
-          }}
-          className="border rounded p-1"
+        <div className="text-sm text-gray-700">
+          <span className="font-medium">{user?.name}</span>
+          <span className="text-gray-500 mx-2">({user?.email})</span>
+        </div>
+        
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm font-medium"
         >
-          {tenants.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </select>
+          Logout
+        </button>
       </div>
     </nav>
   );
