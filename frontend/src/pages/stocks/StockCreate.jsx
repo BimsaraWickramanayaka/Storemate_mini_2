@@ -35,8 +35,10 @@ export default function StockCreate(){
         setLoading(false);
       }
     };
-    loadProducts();
-  }, [tenant.id, tenantChangeCount]);
+    if (tenant) {
+      loadProducts();
+    }
+  }, [tenant?.id, tenantChangeCount]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

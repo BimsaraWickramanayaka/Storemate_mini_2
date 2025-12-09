@@ -126,7 +126,11 @@ export default function OrderList(){
     }
   };
 
-  useEffect(()=> { load(1); }, [tenant.id, tenantChangeCount]);
+  useEffect(()=> { 
+    if (tenant) {
+      load(1);
+    }
+  }, [tenant?.id, tenantChangeCount]);
 
   if (loading) return <Loading />;
   if (error) return <ErrorBox error={error} />;

@@ -50,8 +50,10 @@ export default function Dashboard(){
       }
     };
 
-    load();
-  }, [tenant.id]);
+    if (tenant) {
+      load();
+    }
+  }, [tenant?.id]);
 
   if (loading) return <Loading />;
   if (error) return <ErrorBox error={error} />;
