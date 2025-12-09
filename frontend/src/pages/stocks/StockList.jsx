@@ -51,7 +51,11 @@ export default function StockList(){
     return date.toLocaleDateString();
   };
 
-  useEffect(()=> { load(1); }, [tenant.id, tenantChangeCount]);
+  useEffect(()=> { 
+    if (tenant) {
+      load(1);
+    }
+  }, [tenant?.id, tenantChangeCount]);
 
   if (loading) return <Loading />;
   if (error) return <ErrorBox error={error} />;

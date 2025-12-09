@@ -1,13 +1,11 @@
 // src/components/Navbar.jsx
-import React, { useContext } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import { TenantContext } from "../context/TenantContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
-  const { tenant } = useContext(TenantContext);
 
   const handleLogout = async () => {
     await logout();
@@ -23,8 +21,6 @@ export default function Navbar() {
     <nav className="bg-white p-4 flex items-center justify-between shadow">
       <div className="flex items-center space-x-4">
         <Link to="/" className="font-bold text-lg">Storemate OMS</Link>
-        <span className="text-sm text-gray-500">|</span>
-        <span className="text-sm text-gray-600">{tenant?.name}</span>
         
         <Link to="/products" className="hover:text-indigo-600">Products</Link>
         <Link to="/customers" className="hover:text-indigo-600">Customers</Link>

@@ -32,9 +32,11 @@ export default function ProductList(){
   };
 
   useEffect(()=>{
-    load(1);
+    if (tenant) {
+      load(1);
+    }
     // Re-run when tenant changes
-  }, [tenant.id, tenantChangeCount]);
+  }, [tenant?.id, tenantChangeCount]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product? This cannot be undone.")) {

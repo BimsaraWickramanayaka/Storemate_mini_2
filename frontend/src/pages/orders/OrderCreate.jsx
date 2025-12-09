@@ -37,8 +37,10 @@ export default function OrderCreate(){
   };
 
   useEffect(()=>{
-    loadLists();
-  }, [tenant.id, tenantChangeCount]);
+    if (tenant) {
+      loadLists();
+    }
+  }, [tenant?.id, tenantChangeCount]);
 
   const addRow = () => setItems([...items, { product_id: "", quantity: 1 }]);
   const updateRow = (idx, key, value) => {

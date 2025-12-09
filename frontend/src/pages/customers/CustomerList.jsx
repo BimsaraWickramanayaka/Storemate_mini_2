@@ -27,8 +27,10 @@ export default function CustomerList() {
         setLoading(false);
       }
     };
-    loadCustomers();
-  }, [tenant.id, tenantChangeCount]);
+    if (tenant) {
+      loadCustomers();
+    }
+  }, [tenant?.id, tenantChangeCount]);
 
   const handleDelete = async (id) => {
     const customer = customers.find(c => c.id === id);
